@@ -1,75 +1,323 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>News Website</title>
-  <!-- favicon -->
-  <link rel="icon" type="image/png" href="/img/favicon.png" sizes="32x32" />
-  <!-- Bootsratp CSS -->
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet"
-    integrity="sha384-0evHe/X+R7YkIZDRvuzKMRqM+OrBnVFBL6DOitfPri4tjfHxaWutUpFmBp4vmVor" crossorigin="anonymous" />
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.3.0/css/all.min.css">
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Daily News Hub</title>
+    <!-- favicon -->
+    <link rel="icon" type="image/png" href="/api/placeholder/32/32" sizes="32x32" />
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-0evHe/X+R7YkIZDRvuzKMRqM+OrBnVFBL6DOitfPri4tjfHxaWutUpFmBp4vmVor" crossorigin="anonymous" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.3.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap');
 
-  <!-- Local CSS -->
-  <link rel="stylesheet" href="style.css" />
+        :root {
+            --background-color: #ffffff;
+            --text-color: #333333;
+            --card-background: rgba(128, 128, 128, 0.204);
+            --category-badge-bg: #007bff;
+        }
+
+        * {
+            font-family: 'Poppins', sans-serif;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        body {
+            background-color: var(--background-color);
+            color: var(--text-color);
+            transition: background-color 0.3s, color 0.3s;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        body.dark-mode {
+            --background-color: #333333;
+            --text-color: #ffffff;
+            --card-background: rgba(0, 0, 0, 0.24);
+            --category-badge-bg: #2196f3;
+        }
+
+        .navbar {
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .head {
+            text-align: center;
+            padding: 2rem 0;
+        }
+
+        .line {
+            display: block;
+            width: 100px;
+            height: 4px;
+            background-color: var(--text-color);
+            margin: 1rem auto;
+            border-radius: 2px;
+        }
+
+        #newsBox {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 2rem;
+            padding: 2rem;
+        }
+
+        .newsCard {
+            background: var(--card-background);
+            border-radius: 15px;
+            overflow: hidden;
+            transition: transform 0.3s;
+            height: 100%;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.1);
+        }
+
+        .newsCard:hover {
+            transform: translateY(-5px);
+        }
+
+        .imageWrapper {
+            width: 100%;
+            height: 200px;
+            overflow: hidden;
+        }
+
+        .imageWrapper img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.3s;
+        }
+
+        .newsCard:hover .imageWrapper img {
+            transform: scale(1.05);
+        }
+
+        .card-body {
+            padding: 1.5rem;
+        }
+
+        .category-badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            background-color: var(--category-badge-bg);
+            color: white;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            margin-bottom: 0.5rem;
+            text-transform: capitalize;
+        }
+
+        .card-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: #f8410e;
+        }
+
+        .card-author {
+            font-size: 0.9rem;
+            color: #666;
+            margin-bottom: 0.5rem;
+        }
+
+        .card-text {
+            font-size: 0.9rem;
+            line-height: 1.5;
+            margin-bottom: 1rem;
+        }
+
+        #spinner {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        .date-filters {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        #sticky-footer {
+            margin-top: auto;
+        }
+
+        @media (max-width: 768px) {
+            .navbar .d-flex {
+                flex-wrap: wrap;
+            }
+            
+            .date-filters {
+                width: 100%;
+            }
+
+            #newsBox {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
 </head>
 
 <body>
-  <nav id="navbar">
-    <nav class="navbar navbar-dark navbar-expand-lg bg-dark">
-      <div class="container-fluid">
-        <a class="navbar-brand" href="./">News Website</a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
-          aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-          <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarSupportedContent">
-          <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-          </ul>
-              <div class="form-check form-switch">
-                <input type="checkbox" id="darkModeToggle">
-                <label class="form-check-label" for="darkModeToggle">
-                  <svg class="moon"  xmlns="http://www.w3.org/2000/svg"
-                  width="16" height="16"
-                    viewBox="0 0 512 512">
-                    <path fill="#fff"
-                      d="M268.279,496c-67.574,0-130.978-26.191-178.534-73.745S16,311.293,16,243.718A252.252,252.252,0,0,1,154.183,18.676a24.44,24.44,0,0,1,34.46,28.958,220.12,220.12,0,0,0,54.8,220.923A218.746,218.746,0,0,0,399.085,333.2h0a220.2,220.2,0,0,0,65.277-9.846,24.439,24.439,0,0,1,28.959,34.461A252.256,252.256,0,0,1,268.279,496ZM153.31,55.781A219.3,219.3,0,0,0,48,243.718C48,365.181,146.816,464,268.279,464a219.3,219.3,0,0,0,187.938-105.31,252.912,252.912,0,0,1-57.13,6.513h0a250.539,250.539,0,0,1-178.268-74.016,252.147,252.147,0,0,1-67.509-235.4Z"
-                      class="ci-primary"></path>
-                  </svg>
-                  <svg class="sun"  xmlns="http://www.w3.org/2000/svg" width="16"
-                    height="16" fill="currentColor" class="bi bi-sun" viewBox="0 0 16 16">
-                    <path
-                      d="M8 11a3 3 0 1 1 0-6 3 3 0 0 1 0 6zm0 1a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM8 0a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-1 0v-2A.5.5 0 0 1 8 0zm0 13a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-1 0v-2A.5.5 0 0 1 8 13zm8-5a.5.5 0 0 1-.5.5h-2a.5.5 0 0 1 0-1h2a.5.5 0 0 1 .5.5zM3 8a.5.5 0 0 1-.5.5h-2a.5.5 0 0 1 0-1h2A.5.5 0 0 1 3 8zm10.657-5.657a.5.5 0 0 1 0 .707l-1.414 1.415a.5.5 0 1 1-.707-.708l1.414-1.414a.5.5 0 0 1 .707 0zm-9.193 9.193a.5.5 0 0 1 0 .707L3.05 13.657a.5.5 0 0 1-.707-.707l1.414-1.414a.5.5 0 0 1 .707 0zm9.193 2.121a.5.5 0 0 1-.707 0l-1.414-1.414a.5.5 0 0 1 .707-.707l1.414 1.414a.5.5 0 0 1 0 .707zM4.464 4.465a.5.5 0 0 1-.707 0L2.343 3.05a.5.5 0 1 1 .707-.707l1.414 1.414a.5.5 0 0 1 0 .708z"
-                      fill="#fff9e5"></path>
-                  </svg>
-                </label>
+    <nav class="navbar navbar-dark navbar-expand-lg bg-dark sticky-top">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="./">
+                <i class="fas fa-newspaper me-2"></i>
+                Daily News Hub
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
+                aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                <div class="ms-auto d-flex flex-wrap align-items-center gap-2">
+                    <input type="text" id="searchInput" class="form-control" placeholder="Search news...">
+                    
+                    <select id="categoryFilter" class="form-select">
+                        <option value="all">All Categories</option>
+                        <option value="business">Business</option>
+                        <option value="technology">Technology</option>
+                        <option value="entertainment">Entertainment</option>
+                        <option value="sports">Sports</option>
+                        <option value="science">Science</option>
+                        <option value="health">Health</option>
+                        <option value="general">General</option>
+                    </select>
+
+                    <div class="date-filters">
+                        <input type="date" id="startDate" class="form-control" title="Start Date">
+                        <input type="date" id="endDate" class="form-control" title="End Date">
+                    </div>
+
+                    <select id="pageSize" class="form-select">
+                        <option value="6">6 per page</option>
+                        <option value="12">12 per page</option>
+                        <option value="24">24 per page</option>
+                    </select>
+
+                    <div class="form-check form-switch">
+                        <input type="checkbox" id="darkModeToggle" class="form-check-input">
+                        <label class="form-check-label" for="darkModeToggle">
+                            <i class="fas fa-moon"></i>
+                        </label>
+                    </div>
+
+                    <div class="form-check form-switch ms-2">
+                        <input type="checkbox" id="adminToggle" class="form-check-input">
+                        <label class="form-check-label text-light" for="adminToggle">
+                            <i class="fas fa-user-shield me-1"></i>
+                            Admin
+                        </label>
+                    </div>
+                </div>
+            </div>
         </div>
-      </div>
     </nav>
-  </nav>
-  <div class="head container">
-    <h3>
-      Top News from Popular Webs
-    </h3>
-    <span class="line"></span>
-  </div>
-  <div id="newsBox"></div>
-  <div id="spinner" class="mySpin spinner-border text-warning"></div>
-  <footer id="sticky-footer" class="flex-shrink-0 py-2 bg-dark text-white-50">
-    <div class="container text-center">
-      <small id='footerText'>Copyright &copy; </small>
+
+    <div class="head container">
+        <h3>Top News from Popular Sources</h3>
+        <span class="line"></span>
     </div>
-  </footer>
 
-  <script src="app.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/js/bootstrap.bundle.min.js"
-    integrity="sha384-pprn3073KE6tl6bjs2QrFaJGz5/SUsLqktiwsUTF55Jfv3qYSDhgCecCxMW52nD2"
-    crossorigin="anonymous"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.5/dist/umd/popper.min.js"
-    integrity="sha384-Xe+8cL9oJa6tN/veChSP7q+mnSPaj5Bcu9mPX5F5xIGE0DVittaqT5lorf0EI7Vk"
-    crossorigin="anonymous"></script>
+    <div id="newsBox" class="container-fluid"></div>
+    <div id="spinner" class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Loading...</span>
+    </div>
+
+    <div id="pagination" class="container text-center my-4">
+        <button id="prevPage" class="btn btn-primary me-2">
+            <i class="fas fa-chevron-left me-1"></i>
+            Previous
+        </button>
+        <span id="pageInfo" class="fs-5">Page 1</span>
+        <button id="nextPage" class="btn btn-primary ms-2">
+            Next
+            <i class="fas fa-chevron-right ms-1"></i>
+        </button>
+    </div>
+
+    <!-- Edit Modal -->
+    <div class="modal fade" id="editModal" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editModalLabel">
+                        <i class="fas fa-edit me-2"></i>
+                        Edit Article
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="editForm">
+                        <div class="mb-3">
+                            <label for="editTitle" class="form-label">Title</label>
+                            <input type="text" class="form-control" id="editTitle" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="editDescription" class="form-label">Description</label>
+                            <textarea class="form-control" id="editDescription" rows="3" required></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label for="editAuthor" class="form-label">Author</label>
+                            <input type="text" class="form-control" id="editAuthor">
+                        </div>
+                        <div class="mb-3">
+                            <label for="editCategory" class="form-label">Category</label>
+                            <select class="form-select" id="editCategory" required>
+                                <option value="business">Business</option>
+                                <option value="technology">Technology</option>
+                                <option value="entertainment">Entertainment</option>
+                                <option value="sports">Sports</option>
+                                <option value="science">Science</option>
+                                <option value="health">Health</option>
+                                <option value="general">General</option>
+                            </select>
+                        </div>
+                        <div class="modal-footer px-0 pb-0">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                                <i class="fas fa-times me-1"></i>
+                                Cancel
+                            </button>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save me-1"></i>
+                                Save Changes
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer id="sticky-footer" class="py-3 bg-dark text-white-50 mt-4">
+        <div class="container text-center">
+            <small id='footerText'></small>
+            <div class="mt-2">
+                <a href="#" class="text-white-50 text-decoration-none mx-2">
+                    <i class="fab fa-twitter"></i>
+                </a>
+                <a href="#" class="text-white-50 text-decoration-none mx-2">
+                    <i class="fab fa-facebook"></i>
+                </a>
+                <a href="#" class="text-white-50 text-decoration-none mx-2">
+                    <i class="fab fa-instagram"></i>
+                </a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Bootstrap Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-pprn3073KE6tl6bjs2QrFaJGz5/SUsLqktiwsUTF55Jfv3qYSDhgCecCxMW52nD2"
+        crossorigin="anonymous"></script>
+    <!-- Custom JS -->
+    <script src="app.js"></script>
 </body>
-
 </html>

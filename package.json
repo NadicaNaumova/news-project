@@ -1,0 +1,13 @@
+{
+    "name": "news-website",
+    "version": "1.0.0",
+    "description": "A modern news website with category filtering and admin features",
+    "main": "index.html",
+    "scripts": {
+      "start": "serve",
+      "dev": "serve -l 3000"
+    },
+    "dependencies": {
+      "serve": "^14.0.0"
+    }
+  }
